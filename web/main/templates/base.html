@@ -18,15 +18,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.13/semantic.min.js"></script>
   </head>
   <body>
-      {% include 'includes/navbar.html' %}
-      <div class="container">
+      <div class="ui right vertical menu sidebar">
+        <a class="item">
+          Item 1
+        </a>
+        <a class="item">
+          Item 2
+        </a>
+        <a class="item">
+          Item 3
+        </a>
+      </div>
+      <div class="">
+        <button type="button" name="button" onclick="side()">Side</button>
+      </div>
+      <div class="pusher">
           <!-- Content here -->
+          {% include 'includes/navbar.html' %}
           {% block content %}{% endblock content %}
       </div>
-
       <div class="footer">
           <br>
           <br>
       </div>
+
+<script type="text/javascript">
+  function side() {
+    $('.sidebar')
+      .sidebar('setting', 'transition', 'overlay')
+      .sidebar('toggle')
+  }
+</script>
 </body>
 </html>
