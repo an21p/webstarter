@@ -1,0 +1,63 @@
+version: '2'
+volumes:
+    pgdata:
+services:
+    postgres:
+        restart: always
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data/
+        env_file: .env_prod
+
+    migration:
+        image: espenfolke/webstarter_migration:latest
+        command: bash -c "python manage.py migrate && python manage.py makemigrations && python manage.py migrate"
+        env_file: .env_prod
+        volumes:
+            - /usr/src/app
+        links:
+            - postgres
+        depends_on:
+            - postgres
+
+    fixture:
+        image: espenfolke/webstarter_fixture:latest
+        command: bash -c "python manage.py loaddata dashboard/fixtures/rooms.json"
+        env_file: .env_prod
+        volumes:
+            - /usr/src/app
+        links:
+            - postgres
+            - migration
+        depends_on:
+            - postgres
+            - migration
+
+    web:
+        restart: always
+        image: espenfolke/webstarter_web:latest
+        expose:
+            - "8000"
+        links:
+            - postgres:postgres
+        volumes:
+            - /usr/src/app
+            - /usr/src/app/static
+        env_file: .env_prod
+        command: /usr/local/bin/gunicorn webstarter.wsgi:application -w 2 -b :8000
+        depends_on:
+            - postgres
+
+    nginx:
+        restart: always
+        image: espenfolke/webstarter_nginx:latest
+        ports:
+            - "80:80"
+        volumes:
+            - /www/static
+        volumes_from:
+            - web
+        links:
+            - web:web

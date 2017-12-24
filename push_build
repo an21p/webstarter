@@ -1,0 +1,10 @@
+#!/bin/bash
+clear
+
+FILE=docker-compose-prod.yml
+
+docker-compose -f $FILE build
+docker push espenfolke/webstarter_web:latest
+docker push espenfolke/webstarter_migration:latest
+docker push espenfolke/webstarter_fixture:latest
+docker push espenfolke/webstarter_nginx:latest
